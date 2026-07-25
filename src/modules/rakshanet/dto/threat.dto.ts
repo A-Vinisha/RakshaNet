@@ -6,6 +6,13 @@ export interface ThreatInput {
     poorLighting: boolean;
     routeDeviation: boolean;
     audioThreat: number;
+
+    // Optional — added for Location + Communication integration
+    lat?: number;
+    lng?: number;
+    expectedRoute?: { lat: number; lng: number }[];
+    toNumber?: string;
+    guardianName?: string;
 }
 
 export interface ThreatResult {
