@@ -1,5 +1,6 @@
 import { McpApp, Module, ConfigModule } from '@nitrostack/core';
 import { PizzazModule } from './modules/pizzaz/pizzaz.module.js';
+import { RakshaNetModule } from './modules/rakshanet/rakshanet.module.js';
 
 /**
  * Root Application Module
@@ -22,7 +23,8 @@ import { PizzazModule } from './modules/pizzaz/pizzaz.module.js';
     description: 'Pizza shop finder with interactive maps',
     imports: [
         ConfigModule.forRoot(),
-        PizzazModule
+        PizzazModule,
+        RakshaNetModule
     ],
 })
 export class AppModule { }
