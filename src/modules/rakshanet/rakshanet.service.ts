@@ -1,43 +1,26 @@
 import { Injectable } from '@nitrostack/core';
 
-export interface ThreatInput {
-    night: boolean;
-    poorLighting: boolean;
-    routeDeviation: boolean;
-    audioThreat: number;
-}
+import { ThreatService } from './services/threat.service.js';
+import { DecisionService } from './services/decision.service.js';
 
-@Injectable()
+import { ThreatInput } from './dto/threat.dto.js';
+
+@Injectable({
+    deps: [ThreatService, DecisionService],
+})
 export class RakshaNetService {
+    constructor(
+        private readonly threatService: ThreatService,
+        private readonly decisionService: DecisionService,
+    ) {}
 
     assessThreat(input: ThreatInput) {
-
-        let risk = 0;
-
-        if (input.night) risk += 20;
-        if (input.poorLighting) risk += 20;
-        if (input.routeDeviation) risk += 30;
-
-        risk += Math.min(input.audioThreat, 30);
-
-        let level = 'Low';
-        let action = 'NONE';
-
-        if (risk >= 70) {
-            level = 'Critical';
-            action = 'VERIFY_USER';
-        } else if (risk >= 50) {
-            level = 'High';
-            action = 'ALERT';
-        } else if (risk >= 30) {
-            level = 'Medium';
-            action = 'MONITOR';
-        }
+        const threat = this.threatService.assessThreat(input);
+        const decision = this.decisionService.decide(threat.level);
 
         return {
-            risk,
-            level,
-            action,
+            ...threat,
+            decision,
         };
     }
 }
