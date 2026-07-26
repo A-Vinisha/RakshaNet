@@ -23,10 +23,14 @@
   "author": "Stack Builders",
   "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/ext-apps": ">=0.1.0",
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
     "@nitrostack/core": "^1.0.14",
-    "zod": "^3.22.4",
     "dotenv": "^16.3.1",
-    "@modelcontextprotocol/ext-apps": ">=0.1.0"
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@nitrostack/cli": "^1.0.15",
