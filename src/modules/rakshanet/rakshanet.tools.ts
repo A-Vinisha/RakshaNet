@@ -12,6 +12,9 @@ const ThreatSchema = z.object({
     poorLighting: z.boolean(),
     routeDeviation: z.boolean(),
     audioThreat: z.number().min(0).max(100),
+    latitude: z.number(),
+    longitude: z.number(),
+    guardianPhone: z.string(),
 });
 
 @Injectable({ deps: [RakshaNetService] })
