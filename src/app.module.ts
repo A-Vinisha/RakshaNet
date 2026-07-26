@@ -1,17 +1,15 @@
 import { McpApp, Module, ConfigModule } from '@nitrostack/core';
-import { PizzazModule } from './modules/pizzaz/pizzaz.module.js';
 import { RakshaNetModule } from './modules/rakshanet/rakshanet.module.js';
 
 /**
  * Root Application Module
  * 
- * Pizza shop finder with interactive maps.
- * Showcases NitroStack Widget SDK features.
+ * RakshaNet - Autonomous AI-powered women's safety system
  */
 @McpApp({
     module: AppModule,
     server: {
-        name: 'pizzaz-finder',
+        name: 'rakshanet',
         version: '1.0.0'
     },
     logging: {
@@ -19,11 +17,10 @@ import { RakshaNetModule } from './modules/rakshanet/rakshanet.module.js';
     }
 })
 @Module({
-    name: 'pizzaz',
-    description: 'Pizza shop finder with interactive maps',
+    name: 'rakshanet',
+    description: 'RakshaNet threat assessment and safety assistant',
     imports: [
         ConfigModule.forRoot(),
-        PizzazModule,
         RakshaNetModule
     ],
 })

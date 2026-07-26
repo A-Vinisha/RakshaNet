@@ -1,6 +1,6 @@
 // src/widgets/hooks/useThreatAssessment.ts
 "use client";
-
+import { useWidgetSDK } from "@nitrostack/widgets";
 import { useCallback, useState } from "react";
 import { getMockAssessment } from "../lib/mockData";
 import type {
