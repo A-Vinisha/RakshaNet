@@ -38,20 +38,40 @@ function SectionHeading({
 
 function extractData(rawOutput: any): AssessThreatResponse | null {
   if (!rawOutput) return null;
+
+  if (typeof rawOutput === 'string') {
+    try {
+      const parsed = JSON.parse(rawOutput);
+      return extractData(parsed);
+    } catch {
+      return null;
+    }
+  }
+
   if (typeof rawOutput === 'object') {
-    if ('risk' in rawOutput && 'level' in rawOutput) {
+    if (typeof rawOutput.risk === 'number' || 'level' in rawOutput || 'decision' in rawOutput) {
       return rawOutput as AssessThreatResponse;
     }
-    if (rawOutput.structuredContent && typeof rawOutput.structuredContent === 'object') {
-      return rawOutput.structuredContent as AssessThreatResponse;
+    if (rawOutput.structuredContent) {
+      return extractData(rawOutput.structuredContent);
     }
-    if (Array.isArray(rawOutput.content)) {
-      const item = rawOutput.content.find((c: any) => c?.text);
-      if (item) {
-        try {
-          return JSON.parse(item.text);
-        } catch {
-          // fall through
+    if (rawOutput.result) {
+      return extractData(rawOutput.result);
+    }
+    if (rawOutput.data && rawOutput.data !== rawOutput) {
+      return extractData(rawOutput.data);
+    }
+    const contents = rawOutput.content || rawOutput.contents;
+    if (Array.isArray(contents)) {
+      for (const item of contents) {
+        if (!item) continue;
+        if (typeof item === 'object' && item.text) {
+          const parsed = extractData(item.text);
+          if (parsed) return parsed;
+        }
+        if (typeof item === 'string') {
+          const parsed = extractData(item);
+          if (parsed) return parsed;
         }
       }
     }
@@ -67,7 +87,16 @@ export default function RakshaNetWidgetPage() {
   const sdkOutput = getToolOutput<AssessThreatResponse>();
 
   const [data, setData] = useState<AssessThreatResponse | null>(() => {
-    return extractData(sdkOutput) || (typeof window !== 'undefined' ? extractData((window as any).openai?.toolOutput) : null);
+    const fromSdk = extractData(sdkOutput);
+    if (fromSdk) return fromSdk;
+    if (typeof window !== 'undefined') {
+      const win = window as any;
+      return (
+        extractData(win.openai?.toolOutput) ||
+        extractData(win.__MCP_APP_CONTEXT__?.toolOutput)
+      );
+    }
+    return null;
   });
 
   useEffect(() => {
@@ -79,26 +108,43 @@ export default function RakshaNetWidgetPage() {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'NITRO_INJECT_OPENAI' && event.data?.data?.toolOutput) {
-        const parsed = extractData(event.data.data.toolOutput);
-        if (parsed) setData(parsed);
+      if (!event.data) return;
+
+      const candidate =
+        extractData(event.data.globals?.toolOutput) ||
+        extractData(event.data.openai?.toolOutput) ||
+        extractData(event.data.data?.toolOutput) ||
+        extractData(event.data.data) ||
+        extractData(event.data.result) ||
+        extractData(event.data.toolOutput) ||
+        extractData(event.data);
+
+      if (candidate) {
+        setData(candidate);
       }
-      if (event.data?.type === 'TOOL_OUTPUT' && event.data?.data) {
-        const parsed = extractData(event.data.data);
-        if (parsed) setData(parsed);
+    };
+
+    const handleReady = () => {
+      const win = window as any;
+      const candidate =
+        extractData(win.openai?.toolOutput) ||
+        extractData(win.__MCP_APP_CONTEXT__?.toolOutput);
+      if (candidate) {
+        setData(candidate);
       }
     };
 
     window.addEventListener('message', handleMessage);
-    const handleReady = () => {
-      const parsed = extractData((window as any).openai?.toolOutput);
-      if (parsed) setData(parsed);
-    };
     window.addEventListener('openai:ready', handleReady);
+    window.addEventListener('openai:set_globals', handleReady);
+
+    // Initial check
+    handleReady();
 
     return () => {
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('openai:ready', handleReady);
+      window.removeEventListener('openai:set_globals', handleReady);
     };
   }, []);
 
