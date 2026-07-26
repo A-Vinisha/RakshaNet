@@ -1,11 +1,19 @@
 import {
     ToolDecorator as Tool,
+    Widget,
     ExecutionContext,
     Injectable,
     z,
 } from '@nitrostack/core';
 
 import { RakshaNetService } from './rakshanet.service.js';
+
+function rakshaWidget(route: string) {
+    return {
+        route,
+        prefersBorder: true,
+    };
+}
 
 const ThreatSchema = z.object({
     night: z.boolean(),
@@ -28,6 +36,7 @@ export class RakshaNetTools {
         description: 'Assess the user safety risk based on environmental conditions.',
         inputSchema: ThreatSchema,
     })
+    @Widget(rakshaWidget('rakshanet'))
     async assessThreat(
         args: z.infer<typeof ThreatSchema>,
         ctx: ExecutionContext,
