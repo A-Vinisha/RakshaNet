@@ -1,5 +1,6 @@
 import {
     ToolDecorator as Tool,
+    Widget,
     ExecutionContext,
     Injectable,
     z,
@@ -7,11 +8,21 @@ import {
 
 import { RakshaNetService } from './rakshanet.service.js';
 
+function rakshaWidget(route: string) {
+    return {
+        route,
+        prefersBorder: true,
+    };
+}
+
 const ThreatSchema = z.object({
     night: z.boolean(),
     poorLighting: z.boolean(),
     routeDeviation: z.boolean(),
     audioThreat: z.number().min(0).max(100),
+    latitude: z.number(),
+    longitude: z.number(),
+    guardianPhone: z.string(),
 });
 
 @Injectable({ deps: [RakshaNetService] })
@@ -25,6 +36,7 @@ export class RakshaNetTools {
         description: 'Assess the user safety risk based on environmental conditions.',
         inputSchema: ThreatSchema,
     })
+    @Widget(rakshaWidget('rakshanet'))
     async assessThreat(
         args: z.infer<typeof ThreatSchema>,
         ctx: ExecutionContext,

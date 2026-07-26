@@ -6,6 +6,11 @@ export interface ThreatInput {
     poorLighting: boolean;
     routeDeviation: boolean;
     audioThreat: number;
+
+    // New fields
+    latitude: number;
+    longitude: number;
+    guardianPhone: string;
 }
 
 export interface ThreatResult {
